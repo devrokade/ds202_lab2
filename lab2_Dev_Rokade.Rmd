@@ -1,0 +1,52 @@
+---
+title: "lab2_Dev_Rokade"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab 2
+
+
+
+```{r choco}
+library(classdata)
+
+library(ggplot2)
+library(tidyverse)
+data(choco)
+str(choco) 
+```
+
+## Question 1
+Following are the histograms and the boxplots with outliers
+
+```{r q1}
+ggplot(choco, aes(x=CocoaPercent)) + geom_histogram(color="black",fill="white")
+
+```
+```{r q2}
+chocoMostFrequent <- choco %>% group_by(CountryBeanOrigin) %>% summarise(n()) %>% top_n(10)
+ggplot(choco, aes(x=CountryBeanOrigin)) + geom_bar() + coord_flip() + ggtitle("Number of Ratings per Country of Origin")
+ggplot(chocoMostFrequent, aes(x=reorder(CountryBeanOrigin, `n()`), y=`n()`)) + geom_bar(stat="identity") + coord_flip() + xlab("Country of Bean Origin") + ylab("Count") + ggtitle("Top 10 Countries of Bean Origin")
+```
+```{r q3}
+chocoRated <- choco
+chocoRated$RatingValue[chocoRated$Rating >= 4.0] <- "Outstanding"
+chocoRated$RatingValue[chocoRated$Rating >= 3.5 & chocoRated$Rating < 4.0] <- "Highly Recommended"
+chocoRated$RatingValue[chocoRated$Rating >= 3.0 & chocoRated$Rating < 3.5] <- "Recommended"
+chocoRated$RatingValue[chocoRated$Rating >= 2.0 & chocoRated$Rating < 3.0] <- "Disappointing"
+chocoRated$RatingValue[chocoRated$Rating >= 1.0 & chocoRated$Rating < 2.0] <- "Unpleasant"
+
+summary(chocoRated[chocoRated$RatingValue=="Outstanding",]$CocoaPercent)
+summary(chocoRated[chocoRated$RatingValue=="Highly Recommended",]$CocoaPercent)
+summary(chocoRated[chocoRated$RatingValue=="Recommended",]$CocoaPercent)
+summary(chocoRated[chocoRated$RatingValue=="Disappointing",]$CocoaPercent)
+summary(chocoRated[chocoRated$RatingValue=="Unpleasant",]$CocoaPercent)
+chocoRated$RatingValue <- factor(chocoRated$RatingValue, levels=c("Outstanding","Highly Recommended", "Recommended", "Disappointing", "Unpleasant"))
+ggplot(chocoRated, aes(x=RatingValue,y=CocoaPercent)) + geom_boxplot() + ggtitle("Cocoa Percent by Ratings")
+ggplot(choco, aes(x=Rating,y=CocoaPercent, group=Rating)) + geom_boxplot() + ggtitle("Cocoa Percent by Rating Number")
+```
+
